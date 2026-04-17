@@ -7,6 +7,7 @@ import authRoutes from './server/routes/auth.js';
 import productRoutes from './server/routes/products.js';
 import orderRoutes from './server/routes/orders.js';
 import paymentRoutes from './server/routes/payment.js';
+import path from 'path';
 
 async function startServer() {
   const app = express();
@@ -42,7 +43,15 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
-
+  
+  // Serve the static files from the Vite build
+  app.use(express.static(path.join(__dirname, '../dist')));
+  
+  // Catch-all route: send any unknown requests to the React index.html
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+  
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
