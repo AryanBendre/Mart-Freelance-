@@ -1,8 +1,11 @@
-# Use a lightweight Node image
-FROM node:18-alpine
+# Use Node 22 to satisfy EBADENGINE requirements
+FROM node:22-alpine
 
 # Set the working directory
 WORKDIR /app
+
+# Install Python and build tools required for compiling native modules like better-sqlite3
+RUN apk add --no-cache python3 make g++
 
 # Copy package files and install dependencies
 COPY package*.json ./
