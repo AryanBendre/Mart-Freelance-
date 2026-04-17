@@ -1,0 +1,5 @@
+{
+  "name": "InstaMart",
+  "description": "A modern, fast-loading online supermarket website with a full-stack Express backend, SQLite database, and Razorpay payment integration.",
+  "requestFramePermissions": []
+}
