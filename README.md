@@ -1,3 +1,13 @@
+---
+title: Online Webstore
+emoji: 🛒
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
+
 # InstaMart - Online Supermarket
 
 A complete production-ready online supermarket website inspired by Blinkit, Swiggy Instamart, and Zomato Hyperpure.
