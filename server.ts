@@ -8,6 +8,7 @@ import productRoutes from './server/routes/products.js';
 import orderRoutes from './server/routes/orders.js';
 import paymentRoutes from './server/routes/payment.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 async function startServer() {
   const app = express();
@@ -44,10 +45,14 @@ async function startServer() {
     });
   }
   
-  // Serve the static files from the Vite build
+  // 1. Recreate __dirname for ES Modules
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  
+  // 2. Serve the static files from the Vite build
   app.use(express.static(path.join(__dirname, '../dist')));
   
-  // Catch-all route: send any unknown requests to the React index.html
+  // 3. Catch-all route: send any unknown requests to the React index.html
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
