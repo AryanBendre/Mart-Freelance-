@@ -1,65 +1,59 @@
 import express from 'express';
 import cors from 'cors';
-import { createServer as createViteServer } from 'vite';
-import path from 'path';
-import { initializeDb } from './server/db.js';
-import authRoutes from './server/routes/auth.js';
-import productRoutes from './server/routes/products.js';
-import orderRoutes from './server/routes/orders.js';
-import paymentRoutes from './server/routes/payment.js';
+import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+// ----------------------------------------------------
+// 1. IMPORT YOUR DB & ROUTES (Keep your existing ones)
+// ----------------------------------------------------
+// Example:
+// import { initializeDB } from './server/db.js';
+// import authRoutes from './server/routes/auth.js';
+// import productRoutes from './server/routes/products.js';
+// import orderRoutes from './server/routes/orders.js';
 
-  app.use(cors());
-  app.use(express.json());
+dotenv.config();
 
-  // Initialize Database
-  await initializeDb();
+const app = express();
 
-  // API Routes
-  app.use('/api/auth', authRoutes);
-  app.use('/api/products', productRoutes);
-  app.use('/api/orders', orderRoutes);
-  app.use('/api/payment', paymentRoutes);
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
-  });
+// ----------------------------------------------------
+// 2. MOUNT YOUR API ROUTES
+// ----------------------------------------------------
+// Example:
+// app.use('/api/auth', authRoutes);
+// app.use('/api/products', productRoutes);
+// app.use('/api/orders', orderRoutes);
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
-  
-  // 1. Recreate __dirname for ES Modules
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  
-  // 2. Serve the static files from the Vite build
-  app.use(express.static(path.join(__dirname, '../dist')));
-  
-  // 3. Catch-all route: send any unknown requests to the React index.html
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
-  
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
+// Initialize Database (if you have an init function)
+// initializeDB().then(() => console.log("Database initialized"));
 
-startServer().catch(console.error);
+
+// ----------------------------------------------------
+// 3. HUGGING FACE / DOCKER FRONTEND HOSTING FIXES
+// ----------------------------------------------------
+
+// Recreate __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve the static files from the Vite build directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Catch-all route: send any unknown requests (like React Router links) to index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/index.html'));
+});
+
+// ----------------------------------------------------
+// 4. START SERVER (0.0.0.0 is required for Docker)
+// ----------------------------------------------------
+const PORT = process.env.PORT || 7860;
+
+app.listen(PORT as number, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
